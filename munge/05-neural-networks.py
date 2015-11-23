@@ -15,32 +15,41 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 
 '''
-    This demonstrates how to reach a score of 0.4890 (local validation)
-    on the Kaggle Otto challenge, with a deep net using Keras.
+    This demonstrates how to reach a score of X (local validation)
+    on the Kaggle Prudential Life Insurance challenge, with a deep net using Keras.
     Compatible Python 2.7-3.4. Requires Scikit-Learn and Pandas.
     Recommended to run on GPU:
         Command: THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python kaggle_otto_nn.py
         On EC2 g2.2xlarge instance: 19s/epoch. 6-7 minutes total training time.
-    Best validation score at epoch 21: 0.4881
+    Best validation score at epoch X: X
     Try it at home:
         - with/without BatchNormalization (BatchNormalization helps!)
         - with ReLU or with PReLU (PReLU helps!)
         - with smaller layers, largers layers
         - with more layers, less layers
         - with different optimizers (SGD+momentum+decay is probably better than Adam!)
-    Get the data from Kaggle: https://www.kaggle.com/c/otto-group-product-classification-challenge/data
+    Get the data from Kaggle: https://www.kaggle.com/c/prudential-life-insurance-assessment/data
 '''
 
 
 def load_data(path, train=True):
     df = pd.read_csv(path)
-    X = df.values.copy()
     if train:
+        columns_of_interest = ['Id', 'Response', 'Ins_Age', 'Ht', 'Wt', 'BMI']
+        df = df[columns_of_interest]
+        labels = df['Response']
+        df_1 = df.dropna(axis=0)
+        del df_1['Id']
+        del df_1['Response']
+        X = df_1.values.copy().astype(np.float32)
         np.random.shuffle(X)  # https://youtu.be/uyUXoap67N8
-        X, labels = X[:, 1:-1].astype(np.float32), X[:, -1]
         return X, labels
     else:
-        X, ids = X[:, 1:].astype(np.float32), X[:, 0].astype(str)
+        columns_of_interest = ['Id', 'Ins_Age', 'Ht', 'Wt', 'BMI']
+        df = df[columns_of_interest]
+        ids = df['Id']
+        del df['Id']
+        X = df.values.copy().astype(np.float32)
         return X, ids
 
 
@@ -115,4 +124,8 @@ model.fit(X, y, nb_epoch=20, batch_size=128, validation_split=0.15)
 
 print("Generating submission...")
 proba = model.predict_proba(X_test)
-make_submission(proba, ids, encoder, fname='../data/prepped/submission-neural-networks.csv')
+response = [i.tolist().index(max(i)) for i in proba]
+# make_submission(proba, ids, encoder, fname='../data/prepped/submission-neural-networks-1.csv')
+# submission = pd.read_csv("../data/original/sample_submission.csv")
+submission = pd.DataFrame({'Id': ids, 'Response': response}, columns = ['Id', 'Response'])
+submission.to_csv('../data/prepped/submission-neural-networks-1.csv')
