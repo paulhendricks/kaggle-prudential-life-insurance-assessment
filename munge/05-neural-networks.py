@@ -96,20 +96,22 @@ print(nb_classes, 'classes')
 dims = X.shape[1]
 print(dims, 'dims')
 
+n_hidden = 10
+
 print("Building model...")
 
 model = Sequential()
-model.add(Dense(512, input_shape=(dims,)))
+model.add(Dense(n_hidden, input_shape=(dims,)))
 model.add(PReLU())
 model.add(BatchNormalization())
 model.add(Dropout(0.5))
 
-model.add(Dense(512))
+model.add(Dense(n_hidden))
 model.add(PReLU())
 model.add(BatchNormalization())
 model.add(Dropout(0.5))
 
-model.add(Dense(512))
+model.add(Dense(n_hidden))
 model.add(PReLU())
 model.add(BatchNormalization())
 model.add(Dropout(0.5))
@@ -124,6 +126,7 @@ model.fit(X, y, nb_epoch=20, batch_size=128, validation_split=0.15)
 
 print("Generating submission...")
 proba = model.predict_proba(X_test)
+proba = model.predict_proba(X)
 response = [i.tolist().index(max(i)) for i in proba]
 # make_submission(proba, ids, encoder, fname='../data/prepped/submission-neural-networks-1.csv')
 # submission = pd.read_csv("../data/original/sample_submission.csv")
