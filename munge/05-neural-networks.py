@@ -128,4 +128,4 @@ response = [i.tolist().index(max(i)) for i in proba]
 # make_submission(proba, ids, encoder, fname='../data/prepped/submission-neural-networks-1.csv')
 # submission = pd.read_csv("../data/original/sample_submission.csv")
 submission = pd.DataFrame({'Id': ids, 'Response': response}, columns = ['Id', 'Response'])
-submission.to_csv('../data/prepped/submission-neural-networks-1.csv')
+submission.to_csv('../data/prepped/submission-neural-networks-1.csv', )
